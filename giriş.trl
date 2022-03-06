@@ -1,0 +1,145 @@
+#!/usr/bin/env -S tr-lang y
+
+yükle "/lib/trl/std/linked-list"*
+
+' ' -> BOŞLUK
+'.' -> WIN_POINT_SYMBOL
+
+işlev götür -> y -> x -> o
+    blok obj
+        x -> x
+        y -> y
+        o:sembol -> sembol
+    son
+    obj ver
+son
+
+işlev yürü -> y -> x -> o
+    (o, o:x + x, o:y + y)götür ver
+son
+
+işlev Obj -> sembol
+    blok obj
+        0 -> x
+        0 -> y
+        sembol -> sembol
+    son
+    obj ver
+son
+
+işlev Grid -> wy -> wx -> y -> x
+    blok grid
+        x -> x
+        y -> y
+        wx -> win-x
+        wy -> win-y
+    son
+    grid ver
+son
+
+işlev grid-char -> grid -> obj
+    '/' + '-' * (grid:x * 2 - 1) + '\\\n' -> result
+    0 -> i
+    :. grid:y > i iken
+        0 -> j
+        result + '|' -> result
+        :. grid:x > j iken
+            obj:x = j ve obj:y = i ise
+                obj:sembol
+            yoksa
+                grid:win-x = j ve grid:win-y = i ise
+                    WIN_POINT_SYMBOL
+                yoksa BOŞLUK son
+            son -> t
+            result + t + '|' -> result
+            j + 1 -> j
+        son
+        result + '\n' -> result
+        i + 1 -> i
+    son
+    result + '\\' + '-' * (grid:x * 2 - 1) + '/\n' -> result
+    result de
+son
+
+işlev is-win -> grid -> obj
+    obj:x = grid:win-x ve obj:y = grid:win-y ver
+son
+
+işlev Command -> to-parse
+    blok _Command
+        to-parse = "çık" veya to-parse = "" ise
+            doğru -> is-command
+            to-parse -> içerik
+        yoksa
+            yanlış -> is-command
+            to-parse@sayı -> içerik
+        son
+    son
+    _Command ver
+son
+
+işlev girdicmd
+    girdi Command -> c
+    c ver
+son
+
+işlev giriş
+    doğru -> yürümekte
+    LinkedList -> seviyeler
+    # x, y, wx, wy Grid
+    (50, 40, 17, 39)Grid -> t
+    (seviyeler, t)lklist-ekle -> seviyeler
+    
+    (25, 25, 23, 16)Grid -> t
+    (seviyeler, t)lklist-ekle -> seviyeler
+    
+    (10, 10, 6, 8)Grid -> t
+    (seviyeler, t)lklist-ekle -> seviyeler
+    
+    (5, 5, 4, 4)Grid -> t
+    (seviyeler, t)lklist-ekle -> seviyeler
+
+    1 -> stlen
+    '0' Obj -> mobj
+    :. seviyeler:uzunluk > 1 ve yürümekte iken
+        seviyeler:içerik -> mgrid
+        :. (!(mobj, mgrid)is-win) ve yürümekte iken
+            mobj, mgrid grid-char
+            '# x + ' de girdicmd -> xmov
+            '# y + ' de girdicmd -> ymov
+            xmov:is-command veya ymov:is-command ise
+                yanlış -> yürümekte
+            yoksa
+                xmov:içerik -> xmov
+                ymov:içerik -> ymov
+                mobj, xmov, ymov yürü -> mobj
+            son
+        son
+        yürümekte ise
+            mobj, mgrid grid-char
+            '# Seviye ' de stlen de ' geçildi!\n' de
+            seviyeler:önceki:içerik -> seviyeler
+            stlen + 1 -> stlen
+        son
+    son
+    seviyeler:içerik -> mgrid
+    :. (!(mobj, mgrid)is-win) ve yürümekte iken
+        mobj, mgrid grid-char
+        '# x + ' de girdicmd -> xmov
+        '# y + ' de girdicmd -> ymov
+        xmov:is-command veya ymov:is-command ise
+            yanlış -> yürümekte
+        yoksa
+            xmov:içerik -> xmov
+            ymov:içerik -> ymov
+            mobj, xmov, ymov yürü -> mobj
+        son
+    son
+    yürümekte ise
+        mobj, mgrid grid-char
+        '# Seviye ' de stlen de ' geçildi!\n' de
+        '# Kazandın!\n' de
+    son
+son
+
+giriş
